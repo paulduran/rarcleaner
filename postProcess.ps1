@@ -3,7 +3,8 @@ param(
     [string]$label = "",  
     [string]$dir = "",
     [string]$file = "",
-    [string]$name = ""
+    [string]$name = "",
+	[string]$cleanupScript = ".\clean.ps1"
     )
 Add-Type -AssemblyName System.Web
 
@@ -12,13 +13,11 @@ Add-Type -AssemblyName System.Web
 # and then unrars/cleans up samples/screens etc and removes the rar files
 # If the file is a tv show, we notify sickBeard to do its post-processing and move it into its tv show folder
 # To call from utorrent
-# powershell.exe -noprofile "& 'c:\path\postProcess.ps1' -kind '%K' -label '%L' -file '%F' -dir '%D' -name '%N'"
+# powershell.exe -noprofile "& 'c:\path\postProcess.ps1' -kind '%K' -label '%L' -file '%F' -dir '%D' -name '%N'" -cleanupScript 'c:\path\to\clean.ps1'
 
 
 
 $base = "D:\new"
-$scriptPath = Split-Path $MyInvocation.InvocationName
-$cleanupScript = "$scriptPath\clean.ps1"
 
 function CreateDirectoryIfNeeded ( [string] $Directory ){
 <#
@@ -32,7 +31,7 @@ function CreateDirectoryIfNeeded ( [string] $Directory ){
 #>
     if ((test-path -LiteralPath $Directory) -ne $True)
     {
-        New-Item $Directory-type directory | out-null
+        New-Item $Directory -type directory | out-null
          
         if ((test-path -LiteralPath $Directory) -ne $True)
         {
@@ -51,7 +50,7 @@ function CreateDirectoryIfNeeded ( [string] $Directory ){
 
 function notify-sickbeard
 {
-  param(
+	param(
 		[string]$path
 	)
 	$encoded =  [System.Web.HttpUtility]::UrlEncode($path)
@@ -81,11 +80,11 @@ else
 			$label = "tv shows"
 		}
 	}
-	$target = "$base\$label\$name"
+	$target = "$base\$label"
 	$source = $dir
 	CreateDirectoryIfNeeded $target
 	Copy-Item -LiteralPath $source -Destination $target -recurse -Force	
-	& "$cleanupScript" -single $target
+	& "$cleanupScript" -single $target\$name
 }
 
 if($label -eq "tv shows")
