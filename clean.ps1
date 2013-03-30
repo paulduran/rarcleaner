@@ -111,7 +111,7 @@ function CreateDirectoryIfNeeded ( [string] $Directory ){
 #>
     if ((test-path -LiteralPath $Directory) -ne $True)
     {
-        New-Item $Directory-type directory | out-null
+        New-Item $Directory-type -type directory | out-null
          
         if ((test-path -LiteralPath $Directory) -ne $True)
         {
