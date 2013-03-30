@@ -1,3 +1,7 @@
+param(
+    [switch]$single
+)
+
 $Script:unrarName =  "c:\Program Files\WinRAR\UnRAR.exe"
   
 # borrowed from http://heazlewood.blogspot.com.au/2011/07/first-blog.html  
@@ -125,7 +129,7 @@ function CreateDirectoryIfNeeded ( [string] $Directory ){
 }
 
 function extract-rars {
-  param([string]$path)
+	param([string]$path)
 	
 	get-childitem -path $path\*part001.rar | foreach-object {Extract-RAR-File $_.fullname -RemoveSuccessful $true}
 	get-childitem -path $path\*part01.rar | foreach-object {Extract-RAR-File $_.fullname -RemoveSuccessful $true}
@@ -170,8 +174,13 @@ function clean-folder {
 if($args.count -lt 1) {
 	Write-error "Require at least 1 path to clean up"
 } else {
-	foreach($i in $args) {
-		get-childitem -path $i | where {$_.PSIsContainer} | foreach($_) { clean-folder $_.fullname }		
-	}
+    if($single) {
+        clean-folder $args[0]
+    }
+    else {
+    	foreach($i in $args) {
+    		get-childitem -path $i | where {$_.PSIsContainer} | foreach($_) { clean-folder $_.fullname }		
+    	}
+    }
 }
 
